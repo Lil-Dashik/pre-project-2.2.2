@@ -15,11 +15,12 @@ spring:
         id:
           new_generator_mappings: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  maxCar: 100
+
   thymeleaf:
     check-template-location: false
-sort:
-  enabled-fields:
-    - make
+
+cars:
+  maxCars: 100
+  enabledSortFields:
     - model
     - series

@@ -14,6 +14,7 @@ public class Car {
     private String model;
     private int series;
 
+
     public Car() {
     }
 
@@ -55,8 +56,10 @@ public class Car {
         this.series = series;
     }
 
+
     @Override
     public String toString() {
-        return "Car [id=" + id + ", make=" + make + ", model=" + model + ", series=" + series + "]";
+        return "Car [id=" + id + ", make=" + make + ", model=" + model + ", series=" + series +  "]";
     }
+
 }

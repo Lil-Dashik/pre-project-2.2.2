@@ -3,9 +3,10 @@ package preproject.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import preproject.config.AppConfig;
-import preproject.config.SortConfig;
+import org.springframework.web.server.ResponseStatusException;
+import preproject.config.CarConfig;
 import preproject.dao.CarRepository;
 import preproject.model.Car;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +19,7 @@ public class CarServiceImp implements CarService {
     private CarRepository carRepository;
 
     @Autowired
-    private SortConfig sortConfig;
-
-    @Autowired
-    private AppConfig appConfig;
+    private CarConfig carConfig;
 
     @Override
     public void addCar(Car car) {
@@ -29,21 +27,23 @@ public class CarServiceImp implements CarService {
     }
 
     @Override
-    public List<Car> listCarsSort(Integer page, Integer count, List<String> sortBy) {
-        Sort sort = Sort.unsorted();
-        if (sortBy != null && !sortBy.isEmpty()) {
-            List<String> invalidFields = sortBy.stream()
-                    .filter(field -> !sortConfig.getEnabledFields().contains(field))
-                    .toList();
-            if (!invalidFields.isEmpty()) {
-                throw new IllegalArgumentException("Invalid sort field: " + sortBy);
-            }
-            List<Sort.Order> orders = sortBy.stream()
-                    .map(Sort.Order::asc)
-                    .toList();
-            sort = Sort.by(orders);
+    public List<Car> getCars(Integer count, String sortBy) {
+        int maxCar = carConfig.getMaxCars();
+        if (count == null || count >= maxCar) {
+            count = maxCar;
         }
-        Pageable pageable = PageRequest.of(page, count, sort);
+
+        Sort sort = Sort.unsorted();
+        if (sortBy != null) {
+            if (sortBy.equals("model") || sortBy.equals("make")) {
+                sort = Sort.by(Sort.Order.asc(sortBy));
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Sorting by field '" + sortBy + "' is not allowed.");
+            }
+        }
+
+        Pageable pageable = PageRequest.of(0, count, sort);
         return carRepository.findAll(pageable).getContent();
     }
 
@@ -54,7 +54,7 @@ public class CarServiceImp implements CarService {
 
     @Override
     public List<Car> listCarsByCount(int count) {
-        int maxCar = appConfig.getMaxCar();
+        int maxCar = carConfig.getMaxCars();
         if (count >= maxCar) {
             return carRepository.findAll();
         }

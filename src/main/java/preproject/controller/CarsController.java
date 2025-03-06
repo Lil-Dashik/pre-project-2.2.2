@@ -19,17 +19,11 @@ public class CarsController {
     private CarService carService;
 
     @GetMapping
-    public String listCars(@RequestParam(required = false, defaultValue = "0") Integer page,
+    public String listCars(
                            @RequestParam(required = false) Integer count,
-                           @RequestParam(required = false) List<String> sortBy,
+                           @RequestParam(required = false) String sortBy,
                            Model model) {
-        List<Car> cars;
-        if (count != null && count > 0) {
-            cars = carService.listCarsSort(page, count, sortBy);
-        } else {
-            cars = carService.listCars();
-        }
-
+        List<Car> cars = carService.getCars(count, sortBy);
         model.addAttribute("cars", cars);
         return "cars";
     }
