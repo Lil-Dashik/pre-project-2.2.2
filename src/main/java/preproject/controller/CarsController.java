@@ -20,9 +20,9 @@ public class CarsController {
 
     @GetMapping
     public String listCars(
-                           @RequestParam(required = false) Integer count,
-                           @RequestParam(required = false) String sortBy,
-                           Model model) {
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) String sortBy,
+            Model model) {
         List<Car> cars = carService.getCars(count, sortBy);
         model.addAttribute("cars", cars);
         return "cars";
